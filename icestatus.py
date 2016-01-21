@@ -9,7 +9,7 @@ assume that all the servers configured are part of the same station so we tally
 the total listener count.
 """
 
-__version__ = "1.0"
+__version__ = "1.1"
 
 import argparse
 import requests
@@ -21,6 +21,7 @@ def get_status(host, port, mount):
     stream_status = "UNKNOWN"
     listeners     = ""
     title         = ""
+    source_ip     = ""
 
     u = "http://%s:%s/admin/stats.xml" % (host, port)
     a = ('admin', 'hackme')
@@ -61,17 +62,27 @@ def main(args):
         print "===> %s" % h
         (stream_status, listeners, title, r) = get_status(h, 8000, "/")
 
-        total_listeners = total_listeners + int(listeners)
+        try:
+            total_listeners = total_listeners + int(listeners)
 
-        if stream_status == "RELAY":
-            total_listeners -= 1
+            if stream_status == "RELAY":
+                total_listeners -= 1
+        except ValueError:
+            # don't change the total
+            pass
 
         if stream_status == "SOURCE":
             current_track = title
 
+            if current_track == "":
+                if args.debug:
+                    print h
+                    print "Empty title!"
+                exit(1)
+
         if args.debug:
-            print(r)
             print(r.url)
+            print(r)
         print(stream_status)
         print(listeners)
         if args.debug:
