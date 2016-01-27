@@ -7,10 +7,10 @@
 This script talks to multiple icecast servers and saves their stats to the 
 nominated json file. We assume that all the servers configured are part of the
 same station so we tally the total listener count. We also insert flags so that
-tweetjson.py and slackjson.py know if they need to send data or not.
+other scripts in the collection know if they need to send data or not.
 """
 
-__version__ = "1.0"
+__version__ = "1.1"
 
 import argparse
 import json
@@ -94,6 +94,7 @@ def main(args):
         data["track_history"] = []
         data["tweeted"] = "NO"
         data["slack"] = "NO"
+        data["tunein"] = "NO"
 
     data["current_track"] = current_track
     data["total_listeners"] = total_listeners
@@ -104,6 +105,7 @@ def main(args):
             data["track_history"].extend([current_track])
             data["tweeted"] = "NO"
             data["slack"] = "NO"
+            data["tunein"] = "NO"
     data["track_history"] = data["track_history"][-10:]
 
     with open(args.file, 'w') as outfile:
